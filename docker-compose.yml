@@ -1,0 +1,98 @@
+version: '3.7'
+
+services:
+
+  opensearch-master:
+    restart: always
+    image: opensearchproject/opensearch:2.8.0
+    environment:
+      OPENSEARCH_JAVA_OPTS: "-Xms1024m -Xmx1024m" # minimum and maximum Java heap size, recommend setting both to 50% of system RAM
+      node.name: opensearch-master
+      discovery.seed_hosts: opensearch-master,opensearch-node-1,opensearch-node-2
+      cluster.initial_master_nodes: opensearch-master,opensearch-node-1,opensearch-node-2
+      plugins.security.ssl.transport.pemkey_filepath: certs/master/master.key # relative path
+      plugins.security.ssl.transport.pemcert_filepath: certs/master/master.pem
+      plugins.security.ssl.http.pemkey_filepath: certs/master/master.key
+      plugins.security.ssl.http.pemcert_filepath: certs/master/master.pem
+      DISABLE_INSTALL_DEMO_CONFIG: "true"
+      JAVA_HOME: /usr/share/opensearch/jdk
+      bootstrap.memory_lock: "true"
+      network.host: "0.0.0.0"
+    ulimits: 
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - "./opensearch.yml:/usr/share/opensearch/config/opensearch.yml"
+      - "os-data1:/usr/share/opensearch/data"
+      - "./certs:/usr/share/opensearch/config/certs:ro"
+    ports:
+      - 9200:9200
+      - 9600:9600
+  
+  opensearch-node-1:
+    restart: always
+    image: opensearchproject/opensearch:2.8.0
+    environment:
+      OPENSEARCH_JAVA_OPTS: "-Xms1024m -Xmx1024m" # minimum and maximum Java heap size, recommend setting both to 50% of system RAM
+      node.name: opensearch-node-1
+      discovery.seed_hosts: opensearch-master,opensearch-node-1,opensearch-node-2
+      cluster.initial_master_nodes: opensearch-master,opensearch-node-1,opensearch-node-2
+      plugins.security.ssl.transport.pemkey_filepath: certs/node_1/node_1.key # relative path
+      plugins.security.ssl.transport.pemcert_filepath: certs/node_1/node_1.pem
+      plugins.security.ssl.http.pemkey_filepath: certs/node_1/node_1.key
+      plugins.security.ssl.http.pemcert_filepath: certs/node_1/node_1.pem
+      DISABLE_INSTALL_DEMO_CONFIG: "true"
+      JAVA_HOME: /usr/share/opensearch/jdk
+      bootstrap.memory_lock: "true"
+      network.host: "0.0.0.0"
+    ulimits: 
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - "./opensearch.yml:/usr/share/opensearch/config/opensearch.yml"
+      - "os-data2:/usr/share/opensearch/data"
+      - "./certs:/usr/share/opensearch/config/certs:ro"
+  
+  opensearch-node-2:
+    restart: always
+    image: opensearchproject/opensearch:2.8.0
+    environment:
+      OPENSEARCH_JAVA_OPTS: "-Xms1024m -Xmx1024m" # minimum and maximum Java heap size, recommend setting both to 50% of system RAM
+      node.name: opensearch-node-2
+      discovery.seed_hosts: open-search-master,opensearch-node-1,opensearch-node-2
+      cluster.initial_master_nodes: opensearch-master,opensearch-node-1,opensearch-node-2
+      plugins.security.ssl.transport.pemkey_filepath: certs/node_2/node_2.key
+      plugins.security.ssl.transport.pemcert_filepath: certs/node_2/node_2.pem
+      plugins.security.ssl.http.pemkey_filepath: certs/node_2/node_2.key
+      plugins.security.ssl.http.pemcert_filepath: certs/node_2/node_2.pem
+      DISABLE_INSTALL_DEMO_CONFIG: "true"
+      JAVA_HOME: /usr/share/opensearch/jdk
+      bootstrap.memory_lock: "true"
+      network.host: "0.0.0.0"
+    ulimits: 
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - "./opensearch.yml:/usr/share/opensearch/config/opensearch.yml"
+      - "os-data3:/usr/share/opensearch/data"
+      - "./certs:/usr/share/opensearch/config/certs:ro"
+  
+  kibana:
+    restart: always
+    image: opensearchproject/opensearch-dashboards:2.8.0
+    ports:
+      - 5601:5601
+    volumes:
+      - "./certs:/usr/share/opensearch-dashboards/config/certs:ro"
+      - "./opensearch-dashboards.yml:/usr/share/opensearch-dashboards/config/opensearch_dashboards.yml"
+    environment:
+      OPENSEARCH_HOSTS: '["https://opensearch-master:9200","https://opensearch-node-1:9200","https://opensearch-node-2:9200"]'
+      DISABLE_INSTALL_DEMO_CONFIG: "true"
+
+volumes:
+  os-data1:
+  os-data2:
+  os-data3:

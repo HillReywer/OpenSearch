@@ -1,0 +1,22 @@
+cluster.name: opensearch
+network.host: 0.0.0.0
+
+bootstrap.memory_lock: "true" # along with the memlock settings below, disables swapping
+
+cluster.routing.allocation.disk.threshold_enabled: true
+cluster.routing.allocation.disk.watermark.low: 93%
+cluster.routing.allocation.disk.watermark.high: 95%
+
+plugins.security.allow_unsafe_democertificates: true
+plugins.security.ssl.http.enabled: true
+plugins.security.ssl.http.pemtrustedcas_filepath: certificates/ca/ca.pem
+plugins.security.ssl.transport.enabled: true
+plugins.security.ssl.transport.pemtrustedcas_filepath: certificates/ca/ca.pem
+plugins.security.ssl.transport.enforce_hostname_verification: false
+
+plugins.security.authcz.admin_dn:
+  - 'CN=ADMIN,O=EXAMPLE,L=PARIS,ST=IDF,C=FR' # replace with your admin DN
+plugins.security.nodes_dn:
+  - 'CN=opensearch-master,O=EXAMPLE,L=PARIS,ST=IDF,C=FR'
+  - 'CN=opensearch-node-1,O=EXAMPLE,L=PARIS,ST=IDF,C=FR'
+  - 'CN=opensearch-node-2,O=EXAMPLE,L=PARIS,ST=IDF,C=FR'
