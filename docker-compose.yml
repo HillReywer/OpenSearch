@@ -80,9 +80,9 @@ services:
       - "os-data3:/usr/share/opensearch/data"
       - "./certs:/usr/share/opensearch/config/certs:ro"
   
-  kibana:
+  opensearch-dashboards:
     restart: always
-    image: opensearchproject/opensearch-dashboards:2.8.0
+    image: opensearchproject/opensearch-dashboards:latest
     ports:
       - 5601:5601
     volumes:
@@ -96,3 +96,8 @@ volumes:
   os-data1:
   os-data2:
   os-data3:
+
+networks:
+  default:
+    name: opensearch
+    driver: bridge
